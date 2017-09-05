@@ -1,23 +1,26 @@
 # Chain
 
-[![CI Status](http://img.shields.io/travis/sidmani/Chain.svg?style=flat)](https://travis-ci.org/sidmani/Chain)
-[![Version](https://img.shields.io/cocoapods/v/Chain.svg?style=flat)](http://cocoapods.org/pods/Chain)
-[![License](https://img.shields.io/cocoapods/l/Chain.svg?style=flat)](http://cocoapods.org/pods/Chain)
-[![Platform](https://img.shields.io/cocoapods/p/Chain.svg?style=flat)](http://cocoapods.org/pods/Chain)
-
-## Example
-
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
 ## Requirements
+Install [Sourcery](https://github.com/krzysztofzablocki/Sourcery) and [SourceKitten](https://github.com/jpsim/SourceKitten/) in some place where your shell can find them.
 
 ## Installation
+Copy the main directory into your project.
 
-Chain is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+## Usage
+Make the types you want wrapped conform to ChainWrappedType, e.g.
+`extension UIBezierPath: ChainWrappedType`
+Run `generate.sh` from the main directory and it'll create the wrappers in a new folder called `Generated/`. Add those files to your project and remember to re-run `generate.sh` every time you make changes to the types.
 
-```ruby
-pod 'Chain'
+To access the wrappers, use the `.fn` property. To extract the original object, use `.nf` on a wrapper.
+
+```
+let path = UIBezierPath().fn
+    .move(to: .zero)
+    .addLine(to: CGPoint(x: 5, y: 5))
+    .close()
+    .nf
+
+    type(of: path) // UIBezierPath.self
 ```
 
 ## Author

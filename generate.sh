@@ -17,19 +17,19 @@ key.toolchains:
 " > temp.yml
 }
 
-mkdir -p ./Chain/Classes/Intermediates
+mkdir -p ./Intermediates
 
 # get all types that implement ChainWrappedType
-grep "extension [A-Za-z0-9 ]*:[ ]*ChainWrappedType" ./Chain/Classes/Chain.swift | sed -e "s/extension //" -e "s/ //" -e "s/:.*//" | while read -r class ; do
+grep "extension [A-Za-z0-9 ]*:[ ]*ChainWrappedType" ./Chain.swift | sed -e "s/extension //" -e "s/ //" -e "s/:.*//" | while read -r class ; do
 create_yml $class
 sourcekitten request --yaml temp.yml | 
 grep "\"key.sourcetext\" : " | 
 cut -c 22- | 
 perl -pe 's/\\n/\n/g' | 
-sed -e 's/\\\/\\\//\/\//g' -e 's/^"//' -e 's/"$//'  > ./Chain/Classes/Intermediates/${class}.swift
+sed -e 's/\\\/\\\//\/\//g' -e 's/^"//' -e 's/"$//'  > ./Intermediates/${class}.swift
 done
 
-~/Downloads/Sourcery-0.8.0-initial/bin/sourcery --sources ./Chain/Classes --templates ./Chain/Assets/Stencil --output ./Chain/Generated
+sourcery --sources . --templates ./Stencil --output ./Generated
 
-# rm -rf ./Chain/Classes/Intermediates
+rm -rf ./Chain/Classes/Intermediates
 rm temp.yml

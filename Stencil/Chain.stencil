@@ -11,7 +11,7 @@ class {{ type.name }}ChainWrapper {
         return object
     }
 
-    {% for method in type.allMethods|instance|open %}
+    {% for method in type.allMethods|instance %}
     {% if method.returnTypeName.isVoid %}
 
     func {{ method.name }} -> Self {
