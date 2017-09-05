@@ -20,16 +20,21 @@ key.toolchains:
 mkdir -p ./Intermediates
 
 # get all types that implement ChainWrappedType
-grep "extension [A-Za-z0-9 ]*:[ ]*ChainWrappedType" ./Chain.swift | sed -e "s/extension //" -e "s/ //" -e "s/:.*//" | while read -r class ; do
+grep "extension [A-Za-z0-9. ]*:[ ]*ChainWrappedType" ./Chain.swift | sed -e "s/extension //" -e "s/ //" -e "s/:.*//" | while read -r class ; do
 create_yml $class
+sanitized_class_name=`echo $class | sed "s/.*\.//"`
+
 sourcekitten request --yaml temp.yml | 
 grep "\"key.sourcetext\" : " | 
 cut -c 22- | 
 perl -pe 's/\\n/\n/g' | 
-sed -e 's/\\\/\\\//\/\//g' -e 's/^"//' -e 's/"$//'  > ./Intermediates/${class}.swift
+sed -e 's/\\\/\\\//\/\//g' -e 's/^"//' -e 's/"$//' > ./Intermediates/${sanitized_class_name}.swift
+
+echo "extension ${sanitized_class_name}: ChainWrappedType { }" >> ./Intermediates/${sanitized_class_name}.swift
+
 done
 
 sourcery --sources . --templates ./Stencil --output ./Generated
 
-rm -rf ./Chain/Classes/Intermediates
+rm -rf ./Intermediates
 rm temp.yml

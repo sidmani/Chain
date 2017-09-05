@@ -12,20 +12,28 @@ class {{ type.name }}ChainWrapper {
     }
 
     {% for method in type.allMethods|instance %}
-    {% if method.returnTypeName.isVoid %}
+    {% if method.returnTypeName.isVoid and not method.isInitializer %}
 
     func {{ method.name }} -> Self {
-        object.{{ method.callName }}({% for parameter in method.parameters %}{{ parameter.argumentLabel }}: {{ parameter.name }}{% endfor %})
+        object.{{ method.callName }}({% for parameter in method.parameters %}{% if not parameter.argumentLabel == nil %}{{ parameter.argumentLabel }}: {{ parameter.name }}{% else %}{{ parameter.name }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %})
         return self
     }
     {% endif %}
     {% endfor %}
-    {% for variable in type.allVariables|openSet %}
 
+    {% for variable in type.allVariables|openSet %}
     func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
         object.{{ variable.name }} = newValue
         return self
     }
+    {% endfor %}
+
+    {% for variable in type.allVariables|internalSet %}
+    func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
+        object.{{ variable.name }} = newValue
+        return self
+    }
+
     {% endfor %}
 }
 
