@@ -1,0 +1,38 @@
+{% for type in types.implementing.ChainWrappedType|class %}
+// sourcery:file:{{ type.name }}+Chain.swift
+class {{ type.name }}ChainWrapper {
+    private let object: {{ type.name }}
+
+    init(_ object: {{ type.name }}) {
+        self.object = object
+    }
+
+    var nf: {{ type.name }} {
+        return object
+    }
+
+    {% for method in type.allMethods|instance|open %}
+    {% if method.returnTypeName.isVoid %}
+
+    func {{ method.name }} -> Self {
+        object.{{ method.callName }}({% for parameter in method.parameters %}{{ parameter.argumentLabel }}: {{ parameter.name }}{% endfor %})
+        return self
+    }
+    {% endif %}
+    {% endfor %}
+    {% for variable in type.allVariables|openSet %}
+
+    func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
+        object.{{ variable.name }} = newValue
+        return self
+    }
+    {% endfor %}
+}
+
+extension {{ type.name }} {
+    var fn: {{ type.name }}ChainWrapper {
+        return {{ type.name }}ChainWrapper(self)
+    }
+}
+// sourcery:end
+{% endfor %}

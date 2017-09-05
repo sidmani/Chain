@@ -1,0 +1,2 @@
+// Chain.swift
+protocol ChainWrappedType { }
