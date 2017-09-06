@@ -1,3 +1,16 @@
+{% macro createSetter variable %}
+    func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
+        object.{{ variable.name }} = newValue
+        return self
+    }
+{% endmacro %}
+
+{% macro newlineIfNotLast isLast %}
+{% if not isLast %}
+
+{% endif %}
+{% endmacro %}
+
 {% for type in types.implementing.ChainWrappedType|class %}
 // sourcery:file:{{ type.name }}+Chain.swift
 class {{ type.name }}ChainWrapper {
@@ -11,29 +24,27 @@ class {{ type.name }}ChainWrapper {
         return object
     }
 
-    {% for method in type.allMethods|instance %}
-    {% if method.returnTypeName.isVoid and not method.isInitializer %}
-
+    {% for method in type.allMethods|instance where method.returnTypeName.isVoid and not method.isInitializer %}
     func {{ method.name }} -> Self {
         object.{{ method.callName }}({% for parameter in method.parameters %}{% if not parameter.argumentLabel == nil %}{{ parameter.argumentLabel }}: {{ parameter.name }}{% else %}{{ parameter.name }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %})
         return self
     }
-    {% endif %}
+    {% call newlineIfNotLast forloop.last %}
     {% endfor %}
 
     {% for variable in type.allVariables|openSet %}
-    func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
-        object.{{ variable.name }} = newValue
-        return self
-    }
+    {% call createSetter variable %}
+    {% call newlineIfNotLast forloop.last %}
     {% endfor %}
 
-    {% for variable in type.allVariables|internalSet %}
-    func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
-        object.{{ variable.name }} = newValue
-        return self
-    }
+    {% for variable in type.allVariables|openSet %}
+    {% call createSetter variable %}
+    {% call newlineIfNotLast forloop.last %}
+    {% endfor %}
 
+    {% for variable in type.allVariables|openSet %}
+    {% call createSetter variable %}
+    {% call newlineIfNotLast forloop.last %}
     {% endfor %}
 }
 

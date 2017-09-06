@@ -1,5 +1,4 @@
 // Chain.swift
 protocol ChainWrappedType { }
 
-extension UIKit.UIBezierPath: ChainWrappedType { }
-
+// for example: extension UIKit.UIView: ChainWrappedType { }
