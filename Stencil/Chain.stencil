@@ -1,5 +1,5 @@
 {% macro createSetter variable %}
-    func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
+    @discardableResult func {{ variable.name }}(_ newValue: {{ variable.typeName }}) -> Self {
         object.{{ variable.name }} = newValue
         return self
     }
@@ -13,44 +13,34 @@
 
 {% for type in types.implementing.ChainWrappedType|class %}
 // sourcery:file:{{ type.name }}+Chain.swift
-class {{ type.name }}ChainWrapper {
-    private let object: {{ type.name }}
-
-    init(_ object: {{ type.name }}) {
-        self.object = object
-    }
-
-    var nf: {{ type.name }} {
-        return object
-    }
-
+extension ChainWrapper where T: {{ type.name }} {
     {% for method in type.allMethods|instance where method.returnTypeName.isVoid and not method.isInitializer %}
-    func {{ method.name }} -> Self {
+    @discardableResult func {{ method.name }} -> Self {
         object.{{ method.callName }}({% for parameter in method.parameters %}{% if not parameter.argumentLabel == nil %}{{ parameter.argumentLabel }}: {{ parameter.name }}{% else %}{{ parameter.name }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %})
         return self
     }
     {% call newlineIfNotLast forloop.last %}
     {% endfor %}
 
-    {% for variable in type.allVariables|openSet %}
+    {% for variable in type.allVariables|instance|openSet where variable.isMutable %}
     {% call createSetter variable %}
     {% call newlineIfNotLast forloop.last %}
     {% endfor %}
 
-    {% for variable in type.allVariables|openSet %}
+    {% for variable in type.allVariables|instance|publicSet where variable.isMutable %}
     {% call createSetter variable %}
     {% call newlineIfNotLast forloop.last %}
     {% endfor %}
 
-    {% for variable in type.allVariables|openSet %}
+    {% for variable in type.allVariables|instance|internalSet where variable.isMutable %}
     {% call createSetter variable %}
     {% call newlineIfNotLast forloop.last %}
     {% endfor %}
 }
 
 extension {{ type.name }} {
-    var fn: {{ type.name }}ChainWrapper {
-        return {{ type.name }}ChainWrapper(self)
+    func fn() -> ChainWrapper<{{ type.name }}> {
+        return ChainWrapper(self)
     }
 }
 // sourcery:end

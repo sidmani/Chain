@@ -29,10 +29,11 @@ Make the types you want wrapped conform to ChainWrappedType, e.g.
 Note that you will probably have to include the module name (UIKit in this case) in order to keep SourceKit happy.
 Run `generate.sh` from the main directory and it'll create the wrappers in a new folder called `Generated/`. Add those files to your targets and remember to re-run `generate.sh` every time you make changes to the types.
 
-To access the wrappers, use the `.fn` property. To extract the original object, use `.nf` on a wrapper.
+To access the wrappers, use the `.fn()` function. To extract the original object, use `.nf` on a wrapper.
+Note that due to a limitation in Sourcery, Chain fetches class data through generated swift interfaces with SourceKitten. This means that read/write access on variables is not checked, and can result in compiler errors in generated code. You may have to manually delete methods that cause errors until I can fix the issue.
 
 ```
-let path = UIBezierPath().fn
+let path = UIBezierPath().fn()
     .move(to: .zero)
     .addLine(to: CGPoint(x: 5, y: 5))
     .close()
