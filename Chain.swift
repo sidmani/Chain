@@ -12,6 +12,7 @@ class ChainWrapper<T> where T: ChainWrappedType {
     }
 }
 
+extension UIKit.UICollectionViewFlowLayout: ChainWrappedType { }
 extension UIKit.UIView: ChainWrappedType { }
 extension UIKit.UIBezierPath: ChainWrappedType { }
 extension QuartzCore.CALayer: ChainWrappedType { }
